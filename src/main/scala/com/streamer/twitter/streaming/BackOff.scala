@@ -5,21 +5,23 @@ package com.streamer.twitter
  *
  * This class implements the waiting strategy when errors arise, and trust me, they will.
  */
-case class BackOff(var origBackOffTime: Long, capBackOffAt: Long) {
-  var backOffTime = origBackOffTime
+case class BackOff(origBackOffTime: Long, capBackOffAt: Long) {
+  private var _backOffTime = origBackOffTime
 
   def backOff = {
-    Thread.sleep(backOffTime)
+    Thread.sleep(_backOffTime)
     // Let's wait some more
-    backOffTime *= 2
+    _backOffTime *= 2
     // Limit the wait to the specified cap
-    if(backOffTime > capBackOffAt) {
-      backOffTime = capBackOffAt
+    if(_backOffTime > capBackOffAt) {
+      _backOffTime = capBackOffAt
     }
   }
+
+  def backOffTime = _backOffTime
 
   /**
    * After all errors are resolved (ie successful connection), we reset the sleeping counter.
    */
-  def reset() = { backOffTime = origBackOffTime }
+  def reset() = { _backOffTime = origBackOffTime }
 }
